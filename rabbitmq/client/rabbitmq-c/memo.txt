@@ -1,0 +1,29 @@
+
+	yum install openssl-devel
+	yum install doxygen
+	wget https://github.com/alanxz/rabbitmq-c/archive/master.zip
+	unzip rabbitmq-c-master.zip
+	
+	ˆÈ‰º‚Ì‚Ç‚¿‚ç‚©‚Ì•û–@‚Åƒrƒ‹ƒh
+		cmake
+			mkdir build && cd build
+			cmake ..
+			cmake --build --config Release .
+			make
+		autoconfig
+			yum install autoconf automake libtool
+			autoreconf -i
+			./configure
+			make
+			make install
+	
+	test
+		./examples/amqp_listen localhost 5672 amq.direct test
+		rabbitmqadmin list queues
+			+-------+--------------------------------+-------------+----------------------+-----------+---------+------------------------+--------------------+--------+----------+----------------+-------------------------+------------------+--------+---------+
+			| vhost |              name              | auto_delete | consumer_utilisation | consumers | durable | exclusive_consumer_tag |     idle_since     | memory | messages | messages_ready | messages_unacknowledged |       node       | policy |  state  |
+			+-------+--------------------------------+-------------+----------------------+-----------+---------+------------------------+--------------------+--------+----------+----------------+-------------------------+------------------+--------+---------+
+			| /     | amq.gen-RBRfkGlFHFNLaakkJXRfNw | True        |                      | 1         | False   |                        | 2014-08-16 9:44:32 | 7688   | 0        | 0              | 0                       | rabbit@localhost |        | running |
+-+--------+----------+----------------+-------------------------+------------------+--------+---------+
+		./examples/amqp_sendstring localhost 5672 amq.direct test "hello world"
+

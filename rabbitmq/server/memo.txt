@@ -1,0 +1,57 @@
+
+
+erl
+	以下、うまくいかなかった
+		wget -O /etc/yum.repos.d/epel-erlang.repo http://repos.fedorapeople.org/repos/peter/erlang/epel-erlang.repo
+		yum install erlang
+	
+	https://www.erlang-solutions.com/downloads/download-erlang-otp
+		wget http://packages.erlang-solutions.com/site/esl/esl-erlang/FLAVOUR_1_general/esl-erlang_17.1-1~centos~6_amd64.rpm
+		rpm --import http://packages.erlang-solutions.com/rpm/erlang_solutions.asc
+		vi /etc/yum.repos.d/epel-erlang.repo
+			[erlang-solutions]
+			name=Centos $releasever - $basearch - Erlang Solutions
+			baseurl=http://packages.erlang-solutions.com/rpm/centos/$releasever/$basearch
+			gpgcheck=1
+			gpgkey=http://packages.erlang-solutions.com/rpm/erlang_solutions.asc
+			enabled=1
+		yum install erlang
+
+rabbitmq-server
+	wget http://www.rabbitmq.com/releases/rabbitmq-server/v3.3.5/rabbitmq-server-3.3.5-1.noarch.rpm
+	rpm -Uvh rabbitmq-server-3.3.5-1.noarch.rpm
+	rabbitmq-server -detached
+	rabbitmqctl status
+	rabbitmqctl stop
+	
+	管理コンソール設定
+		rabbitmq-plugins enable rabbitmq_management
+		wget http://localhost:15672/cli/rabbitmqadmin
+		chmod 755 rabbitmqadmin
+		mv rabbitmqadmin /usr/sbin/
+		
+		キューの確認
+			rabbitmqadmin list queues
+		
+		キューの作成
+			rabbitmqadmin declare queue name=example.test
+		
+		ex:
+			rabbitmqadmin list queues
+				No items
+			rabbitmqadmin declare queue name=example.test
+				queue declared
+			rabbitmqadmin list queues
+				+-------+--------------+-------------+----------------------+-----------+---------+------------------------+--------------------+--------+----------+----------------+-------------------------+------------------+--------+---------+
+				| vhost |     name     | auto_delete | consumer_utilisation | consumers | durable | exclusive_consumer_tag |     idle_since     | memory | messages | messages_ready | messages_unacknowledged |       node       | policy |  state  |
+				+-------+--------------+-------------+----------------------+-----------+---------+------------------------+--------------------+--------+----------+----------------+-------------------------+------------------+--------+---------+
+				| /     | example.test | False       |                      | 0         | True    |                        | 2014-08-16 9:22:50 | 9224   | 0        | 0              | 0                       | rabbit@localhost |        | running |
+				+-------+--------------+-------------+----------------------+-----------+---------+------------------------+--------------------+--------+----------+----------------+-------------------------+------------------+--------+---------+
+	
+	ソースから
+		wget http://www.rabbitmq.com/releases/rabbitmq-server/v3.3.5/rabbitmq-server-generic-unix-3.3.5.tar.gz
+		TODO
+
+reger
+	RabbitMQを使ってみる?インストール編?
+		http://blog.excale.net/index.php/archives/3163

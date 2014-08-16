@@ -1,0 +1,22 @@
+
+	wget https://github.com/alanxz/SimpleAmqpClient/archive/master.zip
+	unzip SimpleAmqpClient-master.zip
+	
+	depend
+		boost-1.47.0
+		rabbitmq-c
+			refer 
+		cmake 2.8+
+			yum install gcc-c++
+			wget http://www.cmake.org/files/v3.0/cmake-3.0.1.tar.gz
+			tar zxvf cmake-3.0.1.tar.gz
+			cd cmake-3.0.1
+			./configure
+			make
+			make install
+		Doxygen
+	
+	mkdir simpleamqpclient-build
+	cd simpleamqpclient-build
+	cmake ..
+
