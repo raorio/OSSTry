@@ -27,3 +27,71 @@
 -+--------+----------+----------------+-------------------------+------------------+--------+---------+
 		./examples/amqp_sendstring localhost 5672 amq.direct test "hello world"
 
+	queueについて
+		queueの作成方法
+			rabbitmq-server機能
+				rabbitmqadminコマンド
+					管理コンソールの有効化が必要。その後スクリプトを取得して使うコマンド
+				管理コンソール
+					管理コンソールの有効化が必要
+				etc
+			rabbitmq-c機能
+				amqp_queue_declare()
+					作成済みのqueueに対し実施すると、エラーとなった。
+					また、example/amqp_listen.cで以下のように作成させたキューは、amqp_listen.cプログラムを終了すると、削除された。第七引数auto_deleteで制御している。
+					ひとまず、別の方法でキューを事前に作成しておくのがよさそう。
+						  char const *inQueueName;
+						  inQueueName = "example.test";
+						  //inQueueName = "test";
+						#if 1
+						  {
+						    //amqp_queue_declare_ok_t *r = amqp_queue_declare(conn, 1, amqp_cstring_bytes(inQueueName), 0, 0, 0, 1,
+						    amqp_queue_declare_ok_t *r = amqp_queue_declare(conn, 1, amqp_cstring_bytes(inQueueName), 0, 0, 0, 0,
+						                                 amqp_empty_table);
+						    die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring queue");
+						    queuename = amqp_bytes_malloc_dup(r->queue);
+						    if (queuename.bytes == NULL) {
+						      fprintf(stderr, "Out of memory while copying queue name");
+						      return 1;
+						    }
+						    printf("queue message_count %d\r\n", r->message_count);
+						    printf("queue consumer_count %d\r\n", r->consumer_count);
+						  }
+						#else
+						  queuename.bytes = inQueueName;
+						  queuename.len = strlen(inQueueName);
+						#endif
+				etc
+		queueのサイズ取得
+			rabbitmq-c機能
+				amqp_queue_declare()
+					第七引数auto_deleteをfalseにしておくと、APIコールが成功し、作成されたキューのサイズが取得可能。
+
+	bindについて
+		queueにbindしておくと、キューからデータ取得が可能
+		queue作成とbindは、セットアップ時に実施しておくべき
+		bindの作成方法
+			rabbitmq-server機能
+				rabbitmqadminコマンド
+					TODO
+				管理コンソール
+					管理コンソールの有効化が必要
+					以下のURLのようにアクセスし、対象のキューを選択し、Bindinsから操作可能
+						http://localhost:15672/#/queues
+				etc
+			rabbitmq-c機能
+				amqp_queue_bind()は、設定済みに対し再度実行してもエラーにはならないので、毎回実施してもよい。
+					#if 1
+					  char const *inQueueName;
+					  inQueueName = "example.test";
+					  //inQueueName = "test";
+					  amqp_bytes_t queuename;
+					  queuename.bytes = inQueueName;
+					  queuename.len = strlen(inQueueName);
+					  amqp_queue_bind(conn, 1, queuename, amqp_cstring_bytes(exchange), amqp_cstring
+					_bytes(routingkey),
+					                  amqp_empty_table);
+					  die_on_amqp_error(amqp_get_rpc_reply(conn), "Binding queue");
+					  printf("queuename = %s\r\n", (char*)queuename.bytes);
+					#endif
+

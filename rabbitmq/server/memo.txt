@@ -36,6 +36,10 @@ rabbitmq-server
 		キューの作成
 			rabbitmqadmin declare queue name=example.test
 		
+		host指定が可能
+			rabbitmqadmin --host=xxx subcommand
+				指定したが、うまくいかなかった。なぜ？
+		
 		ex:
 			rabbitmqadmin list queues
 				No items
@@ -55,3 +59,5 @@ rabbitmq-server
 reger
 	RabbitMQを使ってみる?インストール編?
 		http://blog.excale.net/index.php/archives/3163
+	RabbitMQ management
+		http://www.rabbitmq.com/management.html
