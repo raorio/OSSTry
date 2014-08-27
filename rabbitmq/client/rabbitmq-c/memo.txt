@@ -95,3 +95,10 @@
 					  printf("queuename = %s\r\n", (char*)queuename.bytes);
 					#endif
 
+	consumerについて
+		consumerになると、キューのデータを取得してしまうので、キューからデータを取得する場合のみconsumerになるべき。
+			rabbitmq-server機能
+				管理コンソール
+					キューの表示に、コンシューマリストが表示される。
+			rabbitmq-c機能
+				amqp_basic_consume()でコンシューマとなる。
