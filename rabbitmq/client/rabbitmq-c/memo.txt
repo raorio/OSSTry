@@ -102,3 +102,24 @@
 					キューの表示に、コンシューマリストが表示される。
 			rabbitmq-c機能
 				amqp_basic_consume()でコンシューマとなる。
+
+	example
+		デバッグビルド
+			cd examples
+			vi CMakeLists.txt
+				set(CMAKE_BUILD_TYPE Debug)
+				set(CMAKE_C_FLAGS_DEBUG "-g -Wall -fprofile-arcs -ftest-coverage -O0")
+			cd ../build
+			make
+			cd ../examples
+			make
+		
+		デバッグ
+			gdb amqp_listen
+				b main
+				run localhost 5672 amq.direct example.test
+				n
+				...
+		
+		./amqp_sendstring localhost 5672 amq.direct example.test message_test
+

@@ -30,4 +30,36 @@
 	export AMQP_BROKER=localhost
 	./testing/test_api
 	
+	g++ simple_connect.cpp -I/usr/local/include/SimpleAmqpClient -I/root/oss/boost/boost_1_56_0/ -lSimpleAmqpClient -lboost_chrono -lboost_date_time -lboost_system -L/root/oss/boost/boost_1_56_0/stage/lib -o simple_connect
+	export LD_LIBRARY_PATH=/usr/local/lib:/root/oss/boost/boost_1_56_0/stage/lib:/usr/local/lib64
+	./simple_connect
+		管理コンソール上のキューのconsumer情報
+			Channel 	Consumer tag 	Ack required 	Exclusive 	Prefetch count 	Arguments
+			127.0.0.1:33985 (1) 	consumertag 	○ 	● 	1 	
+		Prefetchが1に設定できている。ソースを参照するとどう設定しているかがわかるかも。
+		ただ、キューに500メッセージ詰めて、プログラムを動作させて1メッセージ取得ごとにスリープさせても、一気にキューのメッセージサイズがなくなる。
+		consumeで一気にメッセージを取得していると思われる。
+		Exclusiveが●になっているのが気になる。このためか、2つ目のconsumerは接続がエラーとなってしまった。
+			terminate called after throwing an instance of 'AmqpClient::ResourceLockedException'
+			  what():  channel error: 405: AMQP_BASIC_CONSUME_METHOD caused: RESOURCE_LOCKED - cannot obtain exclusive access to locked queue 'example.test' in vhost '/'
+			Aborted (core dumped)
+	
+	qosの設定のコード
+		以下で成功していると思われるコード
+		SimpleAmqpClient-master/src/Channel.cpp
+			void Channel::BasicQos(const std::string &consumer_tag, boost::uint16_t message_prefetch_count)
+			{
+			    m_impl->CheckIsConnected();
+			    amqp_channel_t channel = m_impl->GetConsumerChannel(consumer_tag);
+
+			    const boost::array<boost::uint32_t, 1> QOS_OK = { { AMQP_BASIC_QOS_OK_METHOD } };
+
+			    amqp_basic_qos_t qos = {};
+			    qos.prefetch_size = 0;
+			    qos.prefetch_count = message_prefetch_count;
+			    qos.global = false;
+
+			    m_impl->DoRpcOnChannel(channel, AMQP_BASIC_QOS_METHOD, &qos, QOS_OK);
+			    m_impl->MaybeReleaseBuffersOnChannel(channel);
+			}
 

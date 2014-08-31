@@ -26,6 +26,7 @@ rabbitmq-server
 	
 	管理コンソール設定
 		rabbitmq-plugins enable rabbitmq_management
+			windowsの場合、インストールしたユーザで、上記実行しなければエラーとなる。インストールユーザのフォルダ配下にデータが保存されているため。
 		wget http://localhost:15672/cli/rabbitmqadmin
 		chmod 755 rabbitmqadmin
 		mv rabbitmqadmin /usr/sbin/
