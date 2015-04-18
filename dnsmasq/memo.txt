@@ -1,0 +1,90 @@
+
+cp /etc/dnsmasq.conf /etc/dnsmasq.conf.back
+vi /etc/dnsmasq.conf
+	# enable dhcp
+	dhcp-range=172.16.2.220,172.16.2.240,12h
+	dhcp-option=option:netmask,255.255.255.0
+
+	# enable log
+	#log-dhcp
+
+	# dhcp lease
+	dhcp-leasefile=/var/lib/misc/dnsmasq.leases
+
+	# interface
+	interface=eth1
+
+# TODO
+/etc/init.d/iptables stop
+#iptables -I INPUT -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+#service iptables save
+
+service dnsmasq restart
+chkconfig dnsmasq on
+
+
+refer
+	dnsmasq dhcp server
+		http://momijiame.tumblr.com/post/72223839304/centos-6-5-dnsmasq-dhcp
+		http://linux.just4fun.biz/Linux%E7%92%B0%E5%A2%83%E8%A8%AD%E5%AE%9A/dnsmasq%E3%82%92DHCP%E3%82%B5%E3%83%BC%E3%83%90%E3%81%A8%E3%81%97%E3%81%A6%E4%BD%BF%E3%81%86%E5%A0%B4%E5%90%88%E3%81%AE%E6%9C%80%E5%B0%8F%E9%99%90%E3%81%AE%E8%A8%AD%E5%AE%9A%E4%BE%8B.html
+
+
+vi /etc/dnsmasq.conf
+	#dhcp-range=172.16.2.220,172.16.2.240,12h
+	#dhcp-option=option:netmask,255.255.255.0
+	dhcp-range=172.16.2.0,proxy
+	enable-tftp
+	tftp-root=/var/lib/tftpboot
+	#dhcp-ignore=#known
+	dhcp-host=00:0c:29:4f:c5:ce,net:pxeclient1
+	pxe-service=net:pxeclient1,x86PC,"dnsmasq-tftp-root/gpxe...proxydhcp.0",gpxe-1.0.1-undionly.kpxe.proxydhcp
+
+	#pxe-service=x86PC,"dnsmasq-tftp-root/gpxe...proxydhcp.0",gpxe-1.0.1-undionly.kpxe.proxydhcp
+	pxe-service=x86PC,"dnsmasq-tftp-root/pxelinux.0",pxelinux
+
+service dnsmasq restart
+
+vi /etc/selinux
+	#SELINUX=enforcing
+	SELINUX=permissive
+getenforce
+setenforce 0
+getenforce
+
+refer
+	2. ProxyDHCPを使ったPXEでgPXEを起動
+		https://sites.google.com/site/iscsiboot/pxe-gpxe-by-dnsmasq-proxydhcp
+
+
+mkdir -p /var/lib/tftpboot/fedora/13/i386
+cd /var/lib/tftpboot/fedora/13/i386
+wget http://ftp.riken.jp/Linux/fedora/releases/13/Fedora/i386/os/images/pxeboot/initrd.img
+wget http://ftp.riken.jp/Linux/fedora/releases/13/Fedora/i386/os/images/pxeboot/vmlinuz
+mkdir -p /var/lib/tftpboot/fedora/13/x86_64
+cd /var/lib/tftpboot/fedora/13/x86_64
+wget http://ftp.riken.jp/Linux/fedora/releases/13/Fedora/x86_64/os/images/pxeboot/initrd.img
+wget http://ftp.riken.jp/Linux/fedora/releases/13/Fedora/x86_64/os/images/pxeboot/vmlinuz
+
+mkdir -p /var/lib/tftpboot/pxelinux.cfg
+vi /var/lib/tftpboot/pxelinux.cfg/default
+	default Fedora13_i386
+	label Fedora13_i386
+	  kernel fedora/13/i386/vmlinuz
+	  append load initrd=fedora/13/i386/initrd.img devfs=nomount
+	label Fedora13_x86_64
+	  kernel fedora/13/x86_64/vmlinuz
+	  append load initrd=fedora/13/x86_64/initrd.img devfs=nomount
+# backup copy
+cp /var/lib/tftpboot/pxelinux.cfg/default /var/lib/tftpboot/pxelinux.cfg/default.fedora13
+
+refer
+	PXEブート用サーバを構築する
+		http://www.maruko2.com/mw/PXE%E3%83%96%E3%83%BC%E3%83%88%E7%94%A8%E3%82%B5%E3%83%BC%E3%83%90%E3%82%92%E6%A7%8B%E7%AF%89%E3%81%99%E3%82%8B
+
+
+yum -y install tgt
+TODO
+
+refer
+	3. iSCSIターゲットを準備(サーバ側)
+		https://sites.google.com/site/iscsiboot/create-iscsi-target-by-tgt

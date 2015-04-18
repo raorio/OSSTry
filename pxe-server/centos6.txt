@@ -1,0 +1,87 @@
+
+
+yum -y install syslinux xinetd tftp-server
+
+mkdir /var/lib/tftpboot/pxelinux.cfg
+cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/
+
+vi /etc/xinetd.d/tftp
+	#disable = yes
+	disable = no
+
+/etc/rc.d/init.d/xinetd start
+chkconfig xinetd on
+
+yum -y install dhcp
+
+vi /etc/dhcp/dhcpd.conf
+	# 以下の内容で新規作成
+	# ドメイン名指定
+	option domain-name "server.world";
+	# ネームサーバーのホスト名, またはIPアドレス指定
+	option domain-name-servers dlp.server.world;
+	# デフォルト貸出期間
+	default-lease-time 600;
+	# 最大貸出期間
+	max-lease-time 7200;
+	# 正当な DHCP サーバーであることの宣言
+	authoritative;
+	# ネットワークアドレスとサブネットマスク指定
+	subnet 172.16.2.0 netmask 255.255.255.0 {
+	    # 貸し出すIPアドレスの範囲指定
+	    range dynamic-bootp 172.16.2.200 172.16.2.254;
+	    # ブロードキャストアドレス指定
+	    option broadcast-address 172.16.2.255;
+	    # ゲートウェイアドレス指定
+	    option routers 172.16.2.1;
+	    option domain-name-servers 192.168.10.1;
+	    # proxydhcpを使う場合、filenameとnext-serverは、効かない。
+	    filename "pxelinux.0";
+	    next-server 172.16.2.52;
+	}
+
+vi /etc/sysconfig/dhcpd
+	DHCPDARGS=eth1
+
+/etc/rc.d/init.d/dhcpd restart
+chkconfig dhcpd on
+
+vi /etc/selinux
+	#SELINUX=enforcing
+	SELINUX=permissive
+getenforce
+setenforce 0
+getenforce
+
+refer
+	dhcp centos 6
+		http://www.server-world.info/query?os=CentOS_6&p=dhcp
+	pxe server centos 6
+		http://www.server-world.info/query?os=CentOS_6&p=pxe
+
+
+mkdir -p /var/lib/tftpboot/fedora/13/i386
+cd /var/lib/tftpboot/fedora/13/i386
+wget http://ftp.riken.jp/Linux/fedora/releases/13/Fedora/i386/os/images/pxeboot/initrd.img
+wget http://ftp.riken.jp/Linux/fedora/releases/13/Fedora/i386/os/images/pxeboot/vmlinuz
+mkdir -p /var/lib/tftpboot/fedora/13/x86_64
+cd /var/lib/tftpboot/fedora/13/x86_64
+wget http://ftp.riken.jp/Linux/fedora/releases/13/Fedora/x86_64/os/images/pxeboot/initrd.img
+wget http://ftp.riken.jp/Linux/fedora/releases/13/Fedora/x86_64/os/images/pxeboot/vmlinuz
+
+mkdir -p /var/lib/tftpboot/pxelinux.cfg
+vi /var/lib/tftpboot/pxelinux.cfg/default
+	default Fedora13_i386
+	label Fedora13_i386
+	  kernel fedora/13/i386/vmlinuz
+	  append load initrd=fedora/13/i386/initrd.img devfs=nomount
+	label Fedora13_x86_64
+	  kernel fedora/13/x86_64/vmlinuz
+	  append load initrd=fedora/13/x86_64/initrd.img devfs=nomount
+# backup copy
+cp /var/lib/tftpboot/pxelinux.cfg/default /var/lib/tftpboot/pxelinux.cfg/default.fedora13
+
+refer
+	PXEブート用サーバを構築する
+		http://www.maruko2.com/mw/PXE%E3%83%96%E3%83%BC%E3%83%88%E7%94%A8%E3%82%B5%E3%83%BC%E3%83%90%E3%82%92%E6%A7%8B%E7%AF%89%E3%81%99%E3%82%8B
+
