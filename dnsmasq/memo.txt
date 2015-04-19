@@ -52,7 +52,7 @@ setenforce 0
 getenforce
 
 refer
-	2. ProxyDHCP‚ğg‚Á‚½PXE‚ÅgPXE‚ğ‹N“®
+	2. ProxyDHCPã‚’ä½¿ã£ãŸPXEã§gPXEã‚’èµ·å‹•
 		https://sites.google.com/site/iscsiboot/pxe-gpxe-by-dnsmasq-proxydhcp
 
 
@@ -78,7 +78,7 @@ vi /var/lib/tftpboot/pxelinux.cfg/default
 cp /var/lib/tftpboot/pxelinux.cfg/default /var/lib/tftpboot/pxelinux.cfg/default.fedora13
 
 refer
-	PXEƒu[ƒg—pƒT[ƒo‚ğ\’z‚·‚é
+	PXEãƒ–ãƒ¼ãƒˆç”¨ã‚µãƒ¼ãƒã‚’æ§‹ç¯‰ã™ã‚‹
 		http://www.maruko2.com/mw/PXE%E3%83%96%E3%83%BC%E3%83%88%E7%94%A8%E3%82%B5%E3%83%BC%E3%83%90%E3%82%92%E6%A7%8B%E7%AF%89%E3%81%99%E3%82%8B
 
 
@@ -86,5 +86,7 @@ yum -y install tgt
 TODO
 
 refer
-	3. iSCSIƒ^[ƒQƒbƒg‚ğ€”õ(ƒT[ƒo‘¤)
+	3. iSCSIã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’æº–å‚™(ã‚µãƒ¼ãƒå´)
 		https://sites.google.com/site/iscsiboot/create-iscsi-target-by-tgt
+http://aikotobaha.blogspot.jp/2012/05/rhel6-iscsi-targetscsi-target-utils.html
+ 
